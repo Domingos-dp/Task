@@ -18,7 +18,7 @@ Este é um sistema de gerenciamento de projetos desenvolvido com **Nuxt 4** que 
 
 *   **[Nuxt 4](https://nuxt.com/)**: Framework Vue.js para aplicações modernas.
 *   **[Vue 3](https://vuejs.org/)**: Com Composition API e TypeScript.
-*   **[TailwindCSS](https://tailwindcss.com/)**: Para estilização rápida e responsiva.
+*   **[Bootstrap 5](https://getbootstrap.com/)**: Framework CSS para componentes responsivos e estilização consistente.
 *   **TypeScript**: Para tipagem estática e segurança de código.
 
 ## 🛠️ Como Executar o Projeto
@@ -49,7 +49,6 @@ Task/
 │   └── composables/
 │       └── useTasks.ts         # Lógica de negócios (Store, Grafo, DFS)
 ├── nuxt.config.ts              # Configuração do Nuxt
-├── tailwind.config.js          # Configuração do Tailwind
 └── package.json                # Dependências do projeto
 ```
 
