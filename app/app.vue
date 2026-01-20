@@ -1,11 +1,4 @@
 <script setup lang="ts">
-/**
- * Componente principal da aplicação de Grafo de Dependências.
- * Gerencia a interface do usuário e interage com o composable useTasks.
- */
-
-// Importa as funções e estado do nosso composable de gerenciamento de tarefas
-//fazendo push
 const {
   tasks,
   addTask,
@@ -17,39 +10,23 @@ const {
   getAreas,
 } = useTasks();
 
-// Estado local para o formulário de nova tarefa
 const newTaskTitle = ref("");
 const newTaskArea = ref("Geral");
 
-// Estado local para armazenar a seleção temporária de dependência para cada tarefa
-// Mapeia taskId -> dependencyId selecionado no dropdown
 const selectedDependency = ref<Record<string, string>>({});
 
-// Computados para organização
 const sortedAreas = computed(() => getAreas());
 
 const getTasksForArea = (area: string) => {
-  return tasks.value.filter((t) => t.area === area);
+  return tasks.value.filter((t: any) => t.area === area);
 };
 
-/**
- * Manipula a adição de uma nova tarefa.
- * Valida se o título não está vazio antes de chamar a store.
- */
 const handleAddTask = () => {
   if (!newTaskTitle.value.trim()) return;
   addTask(newTaskTitle.value, newTaskArea.value);
-  newTaskTitle.value = ""; // Limpa o input após adicionar
-  // Mantém a área selecionada para facilitar adição em lote na mesma área
+  newTaskTitle.value = "";
 };
 
-/**
- * Filtra as tarefas disponíveis para serem adicionadas como dependência.
- * Remove a própria tarefa da lista para evitar auto-dependência imediata.
- * (A verificação de ciclos profundos é feita no useTasks ao tentar adicionar)
- *
- * @param taskId O ID da tarefa para a qual estamos escolhendo uma dependência
- */
 const getAvailableDependencies = (taskId: string) => {
   return tasks.value.filter((t) => t.id !== taskId);
 };
@@ -58,7 +35,6 @@ const getAvailableDependencies = (taskId: string) => {
 <template>
   <div class="min-vh-100 bg-light p-3 p-sm-5 text-dark">
     <div class="container" style="max-width: 900px">
-      <!-- Cabeçalho -->
       <header class="mb-5 text-center text-sm-start">
         <h1
           class="display-4 fw-bold text-dark d-flex align-items-center justify-content-center justify-content-sm-start gap-2"
@@ -71,11 +47,9 @@ const getAvailableDependencies = (taskId: string) => {
         </p>
       </header>
 
-      <!-- Seção de Adicionar Tarefa -->
       <section class="card shadow-sm border-0 mb-5">
         <div class="card-body p-4">
           <div class="row g-3">
-            <!-- Input de Área -->
             <div class="col-12 col-md-3 position-relative">
               <input
                 v-model="newTaskArea"
@@ -93,7 +67,6 @@ const getAvailableDependencies = (taskId: string) => {
               </datalist>
             </div>
 
-            <!-- Input de Título -->
             <div class="col-12 col-md">
               <input
                 v-model="newTaskTitle"
@@ -116,10 +89,8 @@ const getAvailableDependencies = (taskId: string) => {
         </div>
       </section>
 
-      <!-- Lista de Tarefas -->
       <section>
         <div v-for="area in sortedAreas" :key="area" class="mb-5">
-          <!-- Cabeçalho da Área -->
           <h2
             class="h4 fw-bold text-secondary border-bottom pb-2 mb-4 d-flex align-items-center gap-2"
           >
@@ -133,7 +104,6 @@ const getAvailableDependencies = (taskId: string) => {
             >
           </h2>
 
-          <!-- Loop principal de renderização das tarefas -->
           <transition-group
             name="list"
             tag="div"
@@ -145,19 +115,17 @@ const getAvailableDependencies = (taskId: string) => {
               class="card border-0 shadow-sm transition-all"
               :class="[
                 isTaskBlocked(task)
-                  ? 'border-start border-5 border-danger bg-danger bg-opacity-10' // Estilo Bloqueado
+                  ? 'border-start border-5 border-danger bg-danger bg-opacity-10'
                   : task.status === 'completed'
-                  ? 'border-start border-5 border-success opacity-75' // Estilo Concluído
-                  : 'border-start border-5 border-primary', // Estilo Pendente
+                  ? 'border-start border-5 border-success opacity-75'
+                  : 'border-start border-5 border-primary',
               ]"
             >
               <div class="card-body p-4">
-                <!-- Cabeçalho do Card da Tarefa -->
                 <div
                   class="d-flex align-items-start justify-content-between gap-3 mb-3"
                 >
                   <div class="d-flex align-items-center gap-3 flex-grow-1">
-                    <!-- Checkbox Customizado -->
                     <div class="form-check">
                       <input
                         type="checkbox"
@@ -181,7 +149,6 @@ const getAvailableDependencies = (taskId: string) => {
                         {{ task.title }}
                       </span>
 
-                      <!-- Badges de Status -->
                       <div class="d-flex gap-2 mt-1">
                         <span
                           v-if="isTaskBlocked(task)"
@@ -205,7 +172,6 @@ const getAvailableDependencies = (taskId: string) => {
                     </div>
                   </div>
 
-                  <!-- Botão Excluir -->
                   <button
                     @click="removeTask(task.id)"
                     class="btn btn-outline-danger border-0 p-2 rounded-circle"
@@ -228,10 +194,8 @@ const getAvailableDependencies = (taskId: string) => {
                   </button>
                 </div>
 
-                <!-- Seção de Dependências -->
                 <div class="mt-4 pt-3 border-top">
                   <div class="row g-3 align-items-start">
-                    <!-- Lista de Dependências Atuais -->
                     <div class="col-12 col-md">
                       <h3
                         class="h6 fw-bold text-muted text-uppercase mb-2 d-flex align-items-center gap-1"
@@ -288,7 +252,6 @@ const getAvailableDependencies = (taskId: string) => {
                       </div>
                     </div>
 
-                    <!-- Controle para Adicionar Dependência -->
                     <div class="col-12 col-md-auto" style="min-width: 250px">
                       <div class="input-group">
                         <select
@@ -319,7 +282,7 @@ const getAvailableDependencies = (taskId: string) => {
                           @click="() => { 
                             if(selectedDependency[task.id]) {
                               addDependency(task.id, selectedDependency[task.id]!);
-                              selectedDependency[task.id] = ''; // Reset após adicionar
+                              selectedDependency[task.id] = '';  
                             }
                           }"
                           class="btn btn-outline-secondary btn-sm"
@@ -350,7 +313,6 @@ const getAvailableDependencies = (taskId: string) => {
         </div>
       </section>
 
-      <!-- Estado Vazio -->
       <div
         v-if="tasks.length === 0"
         class="text-center text-muted mt-5 py-5 bg-white rounded border border-2 border-dashed"
@@ -367,8 +329,7 @@ const getAvailableDependencies = (taskId: string) => {
 </template>
 
 <style scoped>
-/* Animações para a lista */
-.list-move, /* aplica transição aos elementos que se movem */
+.list-move,
 .list-enter-active,
 .list-leave-active {
   transition: all 0.5s ease;
@@ -380,10 +341,9 @@ const getAvailableDependencies = (taskId: string) => {
   transform: translateY(30px);
 }
 
-/* Garante que o item sendo removido não ocupe espaço durante a animação */
 .list-leave-active {
   position: absolute;
-  width: 100%; /* Pode precisar de ajuste dependendo do layout */
+  width: 100%;
   z-index: 0;
 }
 </style>
