@@ -68,6 +68,11 @@ export const useTasks = () => {
   /**
    * Remove uma tarefa e limpa referências a ela em outras tarefas.
    * @param id O ID da tarefa a ser removida.
+   * 
+   * Complexidade: O(V + E)
+   * - Onde V é o número de tarefas (nós) e E é o número de dependências (arestas).
+   * - Percorre a lista de tarefas para remover o item (O(V)).
+   * - Percorre todas as outras tarefas para limpar referências nas dependências (O(E)).
    */
   const removeTask = (id: string): void => {
     // Remove a tarefa da lista principal
@@ -170,6 +175,11 @@ export const useTasks = () => {
    * 
    * @param task A tarefa a ser verificada.
    * @returns true se bloqueada, false caso contrário.
+   * 
+   * Complexidade: O(D * V)
+   * - Onde D é o número de dependências da tarefa.
+   * - Para cada dependência, fazemos uma busca linear no array de tarefas (O(V)).
+   * - Nota: Poderia ser otimizado para O(D) usando um Map<ID, Task>.
    */
   const isTaskBlocked = (task: Task): boolean => {
       return task.dependencies.some(depId => {

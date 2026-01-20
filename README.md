@@ -72,5 +72,17 @@ Para garantir que o grafo de dependências seja um **DAG (Directed Acyclic Graph
 
 Se tentarmos adicionar uma dependência de `A` para `B` (`A -> B`), o algoritmo verifica se já existe um caminho existente de `B` para `A`. Se esse caminho existir, a nova dependência fecharia um ciclo, e a operação é bloqueada.
 
+## ⏱️ Análise de Complexidade
+
+Abaixo detalhamos a complexidade de tempo (Big O) das principais operações do grafo, onde **V** é o número de tarefas (vértices) e **E** é o número de dependências (arestas).
+
+| Operação | Complexidade | Descrição |
+| :--- | :--- | :--- |
+| **Adicionar Tarefa** | **O(1)** | Inserção direta ao final do array de estado. |
+| **Remover Tarefa** | **O(V + E)** | Requer percorrer o array para remover o item e percorrer todas as outras tarefas para limpar referências nas dependências. |
+| **Verificar Ciclo (DFS)**| **O(V + E)** | No pior caso, a busca em profundidade percorre todo o grafo conexo para garantir que não existam caminhos circulares. |
+| **Adicionar Dependência**| **O(V + E)** | Dominado pela verificação de ciclo (`hasCycle`) que é executada antes da inserção para garantir integridade. |
+| **Verificar Bloqueio** | **O(D * V)** | Para cada uma das **D** dependências de uma tarefa, buscamos o status atual no array principal (O(V)). *Nota: Poderia ser otimizado para O(D) com um Map.* |
+
 ---
 Desenvolvido como um projeto demonstrativo de estruturas de dados aplicadas ao frontend.
