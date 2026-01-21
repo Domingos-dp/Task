@@ -86,3 +86,104 @@ Abaixo detalhamos a complexidade de tempo (Big O) das principais operações do 
 
 ---
 Desenvolvido como um projeto demonstrativo de estruturas de dados aplicadas ao frontend.
+
+## 📎 Trechos de Código (com linhas) e Explicação
+
+Abaixo estão os principais algoritmos com as linhas de código e links diretos para o arquivo de origem.
+
+### Adicionar Tarefa — O(1)
+[useTasks.ts:L58-66](file:///c:/Users/crist/Documents/trae_projects/Task/app/composables/useTasks.ts#L58-L66)
+
+```ts
+58→  const addTask = (title: string, area: string): void => {
+59→    tasks.value.push({
+60→      id: crypto.randomUUID(),
+61→      title,
+62→      area: area || 'Geral',
+63→      dependencies: [],
+64→      status: 'pending'
+65→    })
+66→  }
+```
+- Explicação: inserimos um novo objeto no fim do array; operação constante (não depende de V ou E).
+
+### Remover Tarefa — O(V + E)
+[useTasks.ts:L77-86](file:///c:/Users/crist/Documents/trae_projects/Task/app/composables/useTasks.ts#L77-L86)
+
+```ts
+77→  const removeTask = (id: string): void => {
+78→    tasks.value = tasks.value.filter(t => t.id !== id)
+79→    
+80→    tasks.value.forEach(t => {
+81→      t.dependencies = t.dependencies.filter(depId => depId !== id)
+82→    })
+83→  }
+```
+- Explicação: removemos do array principal (O(V)) e limpamos referências nas dependências (soma sobre todas as listas → O(E)).
+
+### Verificar Ciclo (DFS) — O(V + E)
+[useTasks.ts:L99-121](file:///c:/Users/crist/Documents/trae_projects/Task/app/composables/useTasks.ts#L99-L121)
+
+```ts
+99→  const hasCycle = (sourceId: string, targetId: string): boolean => {
+100→    const visited = new Set<string>()
+101→    const stack = [targetId]
+102→    
+103→    while (stack.length > 0) {
+104→      const currentId = stack.pop()!
+105→      
+106→      if (currentId === sourceId) return true
+107→      
+108→      if (!visited.has(currentId)) {
+109→        visited.add(currentId)
+110→        const currentTask = tasks.value.find(t => t.id === currentId)
+111→        if (currentTask) {
+112→          stack.push(...currentTask.dependencies)
+113→        }
+114→      }
+115→    }
+116→    return false
+117→  }
+```
+- Explicação: a busca em profundidade visita cada nó e aresta ao menos uma vez no pior caso.
+
+### Adicionar Dependência — O(V + E)
+[useTasks.ts:L129-146](file:///c:/Users/crist/Documents/trae_projects/Task/app/composables/useTasks.ts#L129-L146)
+
+```ts
+129→  const addDependency = (taskId: string, dependencyId: string): void => {
+130→    if (taskId === dependencyId) return 
+131→    const task = tasks.value.find(t => t.id === taskId)
+132→    if (!task) return
+133→
+134→    if (task.dependencies.includes(dependencyId)) return 
+135→    
+136→    if (hasCycle(taskId, dependencyId)) {
+137→      alert('Ciclo detectado! ...')
+138→      return
+139→    }
+140→
+141→    task.dependencies.push(dependencyId)
+142→  }
+```
+- Explicação: dominado pela verificação de ciclo (DFS), que assegura que o grafo permaneça acíclico.
+
+### Verificar Bloqueio — O(D * V)
+[useTasks.ts:L184-190](file:///c:/Users/crist/Documents/trae_projects/Task/app/composables/useTasks.ts#L184-L190)
+
+```ts
+184→  const isTaskBlocked = (task: Task): boolean => {
+185→      return task.dependencies.some(depId => {
+186→          const dep = tasks.value.find(t => t.id === depId)
+187→          return dep && dep.status !== 'completed'
+188→      })
+189→  }
+```
+- Explicação: para cada dependência (D), buscamos a tarefa correspondente com `find` (linear em V). Uma otimização seria manter um `Map<ID, Task>` para reduzir para O(D).
+
+### Como foi feita a análise
+- Identificamos laços e varreduras por coleções:
+  - `push` no array é O(1).
+  - `filter` e `find` são O(V) porque percorrem o array.
+  - DFS visita vértices e arestas no pior caso → O(V + E).
+- Somamos passos quando operações encadeiam varreduras em estruturas diferentes (ex.: remover e depois limpar dependências).
