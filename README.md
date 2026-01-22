@@ -82,7 +82,7 @@ Abaixo detalhamos a complexidade de tempo (Big O) das principais operações do 
 | **Remover Tarefa** | **O(V + E)** | Requer percorrer o array para remover o item e percorrer todas as outras tarefas para limpar referências nas dependências. |
 | **Verificar Ciclo (DFS)**| **O(V + E)** | No pior caso, a busca em profundidade percorre todo o grafo conexo para garantir que não existam caminhos circulares. |
 | **Adicionar Dependência**| **O(V + E)** | Dominado pela verificação de ciclo (`hasCycle`) que é executada antes da inserção para garantir integridade. |
-| **Verificar Bloqueio** | **O(D * V)** | Para cada uma das **D** dependências de uma tarefa, buscamos o status atual no array principal (O(V)). *Nota: Poderia ser otimizado para O(D) com um Map.* |
+| **Verificar Bloqueio** | **O(D * V)** | Para cada uma das **D** dependências de uma tarefa, buscamos o status atual no array principal (O(V)). |
 
 ---
 Desenvolvido como um projeto demonstrativo de estruturas de dados aplicadas ao frontend.
