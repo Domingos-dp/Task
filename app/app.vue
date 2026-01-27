@@ -35,7 +35,6 @@ const getAvailableDependencies = (taskId: string) => {
 <template>
   <div class="min-vh-100 bg-white p-4">
     <div class="container" style="max-width: 1400px">
-      <!-- Header -->
       <header class="border-bottom pb-4 mb-4">
         <div class="row align-items-center">
           <div class="col">
