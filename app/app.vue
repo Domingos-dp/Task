@@ -33,76 +33,102 @@ const getAvailableDependencies = (taskId: string) => {
 </script>
 
 <template>
-  <div class="min-vh-100 bg-light p-3 p-sm-5 text-dark">
-    <div class="container" style="max-width: 900px">
-      <header class="mb-5 text-center text-sm-start">
-        <h1
-          class="display-4 fw-bold text-dark d-flex align-items-center justify-content-center justify-content-sm-start gap-2"
-        >
-          <span>🕸️</span>
-          <span class="text-primary bg-gradient"> Grafo de Tarefas </span>
-        </h1>
-        <p class="mt-2 text-muted lead">
-          Gerencie dependências complexas entre suas atividades.
-        </p>
+  <div class="min-vh-100 bg-white p-4">
+    <div class="container" style="max-width: 1400px">
+      <!-- Header -->
+      <header class="border-bottom pb-4 mb-4">
+        <div class="row align-items-center">
+          <div class="col">
+            <h1
+              class="h4 fw-bold text-dark mb-1"
+              style="letter-spacing: -0.5px"
+            >
+              Sistema de Gerenciamento de Dependências
+            </h1>
+            <p class="text-secondary mb-0" style="font-size: 0.875rem">
+              Controle de fluxo de trabalho e dependências entre tarefas
+            </p>
+          </div>
+          <div class="col-auto">
+            <div class="text-end">
+              <div class="small text-secondary mb-1">Total de Tarefas</div>
+              <div class="h3 fw-bold text-dark mb-0">{{ tasks.length }}</div>
+            </div>
+          </div>
+        </div>
       </header>
 
-      <section class="card shadow-sm border-0 mb-5">
-        <div class="card-body p-4">
-          <div class="row g-3">
-            <div class="col-12 col-md-3 position-relative">
-              <input
-                v-model="newTaskArea"
-                list="areas-list"
-                type="text"
-                placeholder="Área (ex: Geral)"
-                class="form-control form-control-lg"
-              />
-              <datalist id="areas-list">
-                <option
-                  v-for="area in sortedAreas"
-                  :key="area"
-                  :value="area"
-                ></option>
-              </datalist>
-            </div>
+      <section class="bg-light border rounded mb-4 p-4">
+        <div class="row g-3 align-items-end">
+          <div class="col-12 col-md-3">
+            <label
+              class="form-label text-secondary fw-medium mb-2"
+              style="font-size: 0.8125rem"
+            >
+              CATEGORIA
+            </label>
+            <input
+              v-model="newTaskArea"
+              list="areas-list"
+              type="text"
+              placeholder="Ex: Desenvolvimento"
+              class="form-control border"
+              style="font-size: 0.9375rem"
+            />
+            <datalist id="areas-list">
+              <option
+                v-for="area in sortedAreas"
+                :key="area"
+                :value="area"
+              ></option>
+            </datalist>
+          </div>
 
-            <div class="col-12 col-md">
-              <input
-                v-model="newTaskTitle"
-                @keyup.enter="handleAddTask"
-                type="text"
-                placeholder="O que precisa ser feito?"
-                class="form-control form-control-lg"
-              />
-            </div>
+          <div class="col-12 col-md">
+            <label
+              class="form-label text-secondary fw-medium mb-2"
+              style="font-size: 0.8125rem"
+            >
+              DESCRIÇÃO DA TAREFA
+            </label>
+            <input
+              v-model="newTaskTitle"
+              @keyup.enter="handleAddTask"
+              type="text"
+              placeholder="Insira a descrição da tarefa"
+              class="form-control border"
+              style="font-size: 0.9375rem"
+            />
+          </div>
 
-            <div class="col-12 col-md-auto">
-              <button
-                @click="handleAddTask"
-                class="btn btn-primary btn-lg w-100 d-flex align-items-center justify-content-center gap-2 fw-semibold"
-              >
-                <span>+</span> Adicionar
-              </button>
-            </div>
+          <div class="col-12 col-md-auto">
+            <button
+              @click="handleAddTask"
+              class="btn btn-dark w-100 fw-medium"
+              style="min-width: 160px; font-size: 0.9375rem"
+            >
+              Adicionar Tarefa
+            </button>
           </div>
         </div>
       </section>
 
       <section>
         <div v-for="area in sortedAreas" :key="area" class="mb-5">
-          <h2
-            class="h4 fw-bold text-secondary border-bottom pb-2 mb-4 d-flex align-items-center gap-2"
+          <div
+            class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom"
           >
-            <span
-              class="badge bg-light text-primary border border-primary-subtle rounded-pill"
-              >#</span
+            <h2
+              class="h5 fw-bold text-dark mb-0"
+              style="letter-spacing: -0.25px"
             >
-            {{ area }}
-            <span class="small fw-normal text-muted ms-auto"
-              >{{ getTasksForArea(area).length }} tarefas</span
-            >
-          </h2>
+              {{ area }}
+            </h2>
+            <span class="text-secondary" style="font-size: 0.875rem">
+              {{ getTasksForArea(area).length }}
+              {{ getTasksForArea(area).length === 1 ? "tarefa" : "tarefas" }}
+            </span>
+          </div>
 
           <transition-group
             name="list"
@@ -112,61 +138,82 @@ const getAvailableDependencies = (taskId: string) => {
             <div
               v-for="task in getTasksForArea(area)"
               :key="task.id"
-              class="card border-0 shadow-sm transition-all"
-              :class="[
-                isTaskBlocked(task)
-                  ? 'border-start border-5 border-danger bg-danger bg-opacity-10'
+              class="border rounded transition-all"
+              :style="{
+                borderLeftWidth: '4px',
+                borderLeftColor: isTaskBlocked(task)
+                  ? '#dc3545'
                   : task.status === 'completed'
-                  ? 'border-start border-5 border-success opacity-75'
-                  : 'border-start border-5 border-primary',
-              ]"
+                  ? '#198754'
+                  : '#6c757d',
+              }"
             >
-              <div class="card-body p-4">
+              <div class="p-4">
                 <div
                   class="d-flex align-items-start justify-content-between gap-3 mb-3"
                 >
-                  <div class="d-flex align-items-center gap-3 flex-grow-1">
-                    <div class="form-check">
+                  <div class="d-flex align-items-start gap-3 flex-grow-1">
+                    <div class="form-check mt-1">
                       <input
                         type="checkbox"
                         :checked="task.status === 'completed'"
                         @change="toggleTaskStatus(task.id)"
                         :disabled="isTaskBlocked(task)"
-                        class="form-check-input fs-4"
-                        style="cursor: pointer"
+                        class="form-check-input border-secondary"
+                        style="
+                          width: 1.125rem;
+                          height: 1.125rem;
+                          cursor: pointer;
+                        "
                       />
                     </div>
 
-                    <div class="d-flex flex-column">
-                      <span
-                        class="fs-5 fw-semibold transition-all"
+                    <div class="flex-grow-1">
+                      <div
+                        class="fw-medium mb-2 transition-all"
                         :class="{
-                          'text-decoration-line-through text-muted':
+                          'text-decoration-line-through text-secondary':
                             task.status === 'completed',
                           'text-dark': task.status !== 'completed',
                         }"
+                        style="font-size: 1rem; line-height: 1.5"
                       >
                         {{ task.title }}
-                      </span>
+                      </div>
 
-                      <div class="d-flex gap-2 mt-1">
+                      <div class="d-flex gap-2">
                         <span
                           v-if="isTaskBlocked(task)"
-                          class="badge bg-danger bg-opacity-10 text-danger border border-danger-subtle"
+                          class="badge bg-danger text-white"
+                          style="
+                            font-size: 0.6875rem;
+                            font-weight: 600;
+                            padding: 0.375rem 0.75rem;
+                          "
                         >
-                          🔒 Bloqueado por dependências
+                          BLOQUEADA
                         </span>
                         <span
                           v-else-if="task.status === 'completed'"
-                          class="badge bg-success bg-opacity-10 text-success border border-success-subtle"
+                          class="badge bg-success text-white"
+                          style="
+                            font-size: 0.6875rem;
+                            font-weight: 600;
+                            padding: 0.375rem 0.75rem;
+                          "
                         >
-                          ✅ Concluído
+                          CONCLUÍDA
                         </span>
                         <span
                           v-else
-                          class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle"
+                          class="badge bg-secondary text-white"
+                          style="
+                            font-size: 0.6875rem;
+                            font-weight: 600;
+                            padding: 0.375rem 0.75rem;
+                          "
                         >
-                          ⏳ Pendente
+                          EM PROGRESSO
                         </span>
                       </div>
                     </div>
@@ -174,69 +221,63 @@ const getAvailableDependencies = (taskId: string) => {
 
                   <button
                     @click="removeTask(task.id)"
-                    class="btn btn-outline-danger border-0 p-2 rounded-circle"
-                    title="Excluir Tarefa"
-                    style="text-decoration: none"
+                    class="btn btn-link text-secondary p-0 border-0"
+                    title="Remover tarefa"
+                    style="text-decoration: none; opacity: 0.7"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
                     >
+                      <polyline points="3 6 5 6 21 6"></polyline>
                       <path
-                        fill-rule="evenodd"
-                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                        clip-rule="evenodd"
-                      />
+                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                      ></path>
+                      <line x1="10" y1="11" x2="10" y2="17"></line>
+                      <line x1="14" y1="11" x2="14" y2="17"></line>
                     </svg>
                   </button>
                 </div>
 
-                <div class="mt-4 pt-3 border-top">
-                  <div class="row g-3 align-items-start">
-                    <div class="col-12 col-md">
-                      <h3
-                        class="h6 fw-bold text-muted text-uppercase mb-2 d-flex align-items-center gap-1"
-                        style="font-size: 0.75rem; letter-spacing: 0.05em"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="12"
-                          height="12"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
+                <div class="pt-3 mt-3 border-top">
+                  <div class="row g-4">
+                    <div class="col-12 col-lg-7">
+                      <div class="mb-2">
+                        <label
+                          class="text-secondary fw-medium"
+                          style="font-size: 0.75rem; letter-spacing: 0.5px"
                         >
-                          <path
-                            fill-rule="evenodd"
-                            d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z"
-                            clip-rule="evenodd"
-                          />
-                        </svg>
-                        Pré-requisitos (Depende de)
-                      </h3>
+                          DEPENDÊNCIAS
+                        </label>
+                      </div>
 
                       <div class="d-flex flex-wrap gap-2">
                         <span
                           v-if="task.dependencies.length === 0"
-                          class="small text-muted fst-italic py-1"
+                          class="text-muted"
+                          style="font-size: 0.875rem"
                         >
-                          Esta tarefa não tem dependências.
+                          Nenhuma dependência configurada
                         </span>
 
                         <div
                           v-for="depId in task.dependencies"
                           :key="depId"
-                          class="badge rounded-pill d-flex align-items-center gap-2 border fw-normal text-dark px-3 py-2"
+                          class="d-inline-flex align-items-center gap-2 border rounded px-3 py-2"
                           :class="
                             tasks.find((t) => t.id === depId)?.status ===
                             'completed'
-                              ? 'bg-success bg-opacity-10 border-success-subtle text-success-emphasis'
-                              : 'bg-warning bg-opacity-10 border-warning-subtle text-warning-emphasis'
+                              ? 'bg-success bg-opacity-10 border-success text-success'
+                              : 'bg-warning bg-opacity-10 border-warning text-dark'
                           "
+                          style="font-size: 0.875rem"
                         >
-                          <span class="text-truncate" style="max-width: 150px">
+                          <span class="text-truncate" style="max-width: 200px">
                             {{
                               tasks.find((t) => t.id === depId)?.title ||
                               "Tarefa Removida"
@@ -244,22 +285,48 @@ const getAvailableDependencies = (taskId: string) => {
                           </span>
                           <button
                             @click="removeDependency(task.id, depId)"
-                            class="btn-close btn-close-dark"
-                            style="width: 0.5em; height: 0.5em"
+                            class="btn btn-link p-0 border-0 text-reset"
+                            style="
+                              text-decoration: none;
+                              opacity: 0.6;
+                              line-height: 1;
+                            "
                             title="Remover dependência"
-                          ></button>
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                            >
+                              <line x1="18" y1="6" x2="6" y2="18"></line>
+                              <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                          </button>
                         </div>
                       </div>
                     </div>
 
-                    <div class="col-12 col-md-auto" style="min-width: 250px">
+                    <div class="col-12 col-lg-5">
+                      <div class="mb-2">
+                        <label
+                          class="text-secondary fw-medium"
+                          style="font-size: 0.75rem; letter-spacing: 0.5px"
+                        >
+                          ADICIONAR DEPENDÊNCIA
+                        </label>
+                      </div>
                       <div class="input-group">
                         <select
                           v-model="selectedDependency[task.id]"
-                          class="form-select form-select-sm"
+                          class="form-select border"
+                          style="font-size: 0.875rem"
                         >
                           <option :value="undefined" disabled selected>
-                            Vincular dependência...
+                            Selecionar tarefa
                           </option>
                           <option
                             v-for="candidate in getAvailableDependencies(
@@ -270,11 +337,6 @@ const getAvailableDependencies = (taskId: string) => {
                             :disabled="task.dependencies.includes(candidate.id)"
                           >
                             {{ candidate.title }}
-                            {{
-                              task.dependencies.includes(candidate.id)
-                                ? "(Já vinculada)"
-                                : ""
-                            }}
                           </option>
                         </select>
 
@@ -285,23 +347,12 @@ const getAvailableDependencies = (taskId: string) => {
                               selectedDependency[task.id] = '';  
                             }
                           }"
-                          class="btn btn-outline-secondary btn-sm"
+                          class="btn btn-outline-dark"
                           :disabled="!selectedDependency[task.id]"
-                          title="Adicionar Vínculo"
+                          title="Vincular dependência"
+                          style="font-size: 0.875rem"
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="20"
-                            height="20"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                          >
-                            <path
-                              fill-rule="evenodd"
-                              d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                              clip-rule="evenodd"
-                            />
-                          </svg>
+                          Vincular
                         </button>
                       </div>
                     </div>
@@ -315,13 +366,27 @@ const getAvailableDependencies = (taskId: string) => {
 
       <div
         v-if="tasks.length === 0"
-        class="text-center text-muted mt-5 py-5 bg-white rounded border border-2 border-dashed"
+        class="text-center border rounded p-5 bg-light"
       >
-        <div class="display-1 mb-3 opacity-50">📝</div>
-        <h3 class="h5 fw-normal text-secondary">Nenhuma tarefa encontrada</h3>
-        <p class="mt-2 text-muted mx-auto" style="max-width: 300px">
-          Comece adicionando tarefas acima e depois vincule dependências entre
-          elas.
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          class="text-secondary opacity-50 mb-3"
+        >
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        <h3 class="h6 fw-medium text-dark mb-2">Nenhuma tarefa cadastrada</h3>
+        <p class="text-secondary mb-0" style="font-size: 0.875rem">
+          Utilize o formulário acima para adicionar sua primeira tarefa ao
+          sistema
         </p>
       </div>
     </div>
@@ -345,5 +410,9 @@ const getAvailableDependencies = (taskId: string) => {
   position: absolute;
   width: 100%;
   z-index: 0;
+}
+
+.btn:hover {
+  opacity: 0.9;
 }
 </style>
